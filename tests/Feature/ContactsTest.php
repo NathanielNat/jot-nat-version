@@ -83,9 +83,36 @@ class ContactsTest extends TestCase
 
     /** @test */
     public function a_contact_can_be_retrieved(){
-      
+        $contact = factory(Contact::class)->create();
+        
+      $response = $this->get('/api/contacts/'.$contact->id);
+      $response->assertJson([
+        'name' => $contact->name,
+        'birthday' => $contact->birthday,
+        'email' => $contact->email,
+        'company' => $contact->company,
+      ]);
     }
 
+    /** @test */
+
+    public function a_contact_can_be_patched(){
+      $contact = factory(Contact::class)->create();
+      $response = $this->patch('/api/contacts/'.$contact->id,$this->data());
+      $contact = $contact->fresh();
+        $this->assertCount(1,Contact::all());
+            $this->assertInstanceOf(Carbon::class, Contact::first()->birthday); 
+            $this->assertEquals('05-04-1998',Contact::first()->birthday->format('m-d-Y'));
+    }
+
+    /** @test */
+    public function a_contact_can_be_deleted(){
+      $contact = factory(Contact::class)->create();
+
+      $response = $this->delete('/api/contacts/'.$contact->id);
+      $this->assertCount(0,Contact::all());
+
+    }
 
     private function data(){
       return [

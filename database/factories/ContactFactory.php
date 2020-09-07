@@ -7,6 +7,9 @@ use Faker\Generator as Faker;
 
 $factory->define(Contact::class, function (Faker $faker) {
     return [
-        //
+        'name' => $faker->name,
+        'email' => $faker->email,
+        'birthday' => '05/04/1998',
+        'company' => $faker->company
     ];
 });
