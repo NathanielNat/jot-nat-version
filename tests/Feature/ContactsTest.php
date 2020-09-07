@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
+use Carbon\Carbon;
 use Symfony\Component\HttpFoundation\Response;
 use App\Contact;
 
@@ -68,17 +69,23 @@ class ContactsTest extends TestCase
       });
      }
 
-     /** @test */
+     /** @test  */
     public function birthdays_are_properly_stored(){
-      collect(['name','email','birthday','company'])
-      ->each(function($field) {
+     
           $response = $this->post('/api/contacts',
             array_merge($this->data()));
-;
-            $this->assertCount(0,Contact::all());
-            $this->assertInstanceof(Carbon::class, Contact::birthday()); 
-      });
+
+            $this->assertCount(1,Contact::all());
+            $this->assertInstanceOf(Carbon::class, Contact::first()->birthday); 
+            $this->assertEquals('05-04-1998',Contact::first()->birthday->format('m-d-Y'));
+     
     }
+
+    /** @test */
+    public function a_contact_can_be_retrieved(){
+      
+    }
+
 
     private function data(){
       return [
