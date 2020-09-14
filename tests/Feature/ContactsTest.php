@@ -12,25 +12,27 @@ use App\Contact;
 class ContactsTest extends TestCase
 {
   use RefreshDatabase;
+
+   /** @test */
+   public function unauthenticated_user_should_be_rediercted_to_login(){
+      
+      $response =  $this->post('/api/contacts', $this->data());
+      $response->assertRedirect('/login');
+
+      $this->assertCount(0, Contact::all());
+   }
     /**
      * A basic feature test example.
      *
      * @test  
      */
     public function contact_can_be_added(){
-
         //show error
         $this->withoutExceptionHandling();
-       
 
-        $this->post('/api/contacts', [
-          'name' => "T'Challa",
-          'email' => 'psalmnat@gmail.com',
-          'birthday' => '05/04/1998',
-          'company' => 'IT consortium'
-          ]);
+        $this->post('/api/contacts',$this->data);
           $contact = Contact::first();
-        // $this->assertCount(1 ,$contact);
+        
         $this->assertEquals("T'Challa", $contact->name);
         $this->assertEquals('psalmnat@gmail.com', $contact->email);
         $this->assertEquals('05/04/1998', $contact->birthday);
@@ -117,9 +119,9 @@ class ContactsTest extends TestCase
     private function data(){
       return [
         'name' => "T'Challa",
-          'email' => 'psalmnat@gmail.com',
-          'birthday' => '05/04/1998',
-          'company' => 'IT consortium'
+        'email' => 'psalmnat@gmail.com',
+        'birthday' => '05/04/1998',
+        'company' => 'IT consortium'
       ]; 
 
     }
