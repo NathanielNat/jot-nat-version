@@ -75,7 +75,7 @@ class ContactController extends Controller
     }
 
     private function validate_data(){
-         return  $request->validate([
+         return  request()->validate([
             'name' => 'required',
             'email' => 'required|email',
             'birthday' => 'required',

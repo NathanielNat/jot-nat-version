@@ -8,15 +8,27 @@ use Tests\TestCase;
 use Carbon\Carbon;
 use Symfony\Component\HttpFoundation\Response;
 use App\Contact;
+use App\User ;
 
 class ContactsTest extends TestCase
 {
   use RefreshDatabase;
 
+  protected $user;
+
+  protected function setup():void
+  {
+
+    parent::setup();
+
+    $this->user = \factory(User::class)->create();
+
+  }
+
    /** @test */
    public function unauthenticated_user_should_be_rediercted_to_login(){
       
-      $response =  $this->post('/api/contacts', $this->data());
+      $response =  $this->post('/api/contacts', \array_merge($this->data(),['api_token' => '']));
       $response->assertRedirect('/login');
 
       $this->assertCount(0, Contact::all());
@@ -26,20 +38,24 @@ class ContactsTest extends TestCase
      *
      * @test  
      */
-    public function contact_can_be_added(){
-        //show error
-        $this->withoutExceptionHandling();
+    public function authenticated_user_can_add_contact(){
 
-        $this->post('/api/contacts',$this->data);
+      $this->withoutExceptionHandling();
+      
+      $user  = factory(User::class)->create();
+    
+
+      $this->post('/api/contacts',$this->data(), ['api_token' => $user->api_token]);
+       
           $contact = Contact::first();
         
         $this->assertEquals("T'Challa", $contact->name);
         $this->assertEquals('psalmnat@gmail.com', $contact->email);
-        $this->assertEquals('05/04/1998', $contact->birthday);
+        $this->assertEquals('05/04/1998', $contact->birthday->format('m/d/Y'));
         $this->assertEquals('IT consortium', $contact->company);
     }
 
-    /**
+    /**clear && vendor/bin/phpunit --filter a_contact_can_be_deleted
      * @test
      */
     public function fields_are_required(){
@@ -79,18 +95,18 @@ class ContactsTest extends TestCase
 
             $this->assertCount(1,Contact::all());
             $this->assertInstanceOf(Carbon::class, Contact::first()->birthday); 
-            $this->assertEquals('05-04-1998',Contact::first()->birthday->format('m-d-Y'));
+            $this->assertEquals('05/04/1998',Contact::first()->birthday->format('m/d/Y'));
      
     }
 
     /** @test */
     public function a_contact_can_be_retrieved(){
         $contact = factory(Contact::class)->create();
-        
-      $response = $this->get('/api/contacts/'.$contact->id);
+       
+      $response = $this->get('/api/contacts/'.$contact->id. '?api_token='. $this->user->api_token);
       $response->assertJson([
         'name' => $contact->name,
-        'birthday' => $contact->birthday,
+        'birthday' => $contact->birthday->format('m/d/Y'),
         'email' => $contact->email,
         'company' => $contact->company,
       ]);
@@ -104,14 +120,14 @@ class ContactsTest extends TestCase
       $contact = $contact->fresh();
         $this->assertCount(1,Contact::all());
             $this->assertInstanceOf(Carbon::class, Contact::first()->birthday); 
-            $this->assertEquals('05-04-1998',Contact::first()->birthday->format('m-d-Y'));
+            $this->assertEquals('05/04/1998',Contact::first()->birthday->format('m/d/Y'));
     }
 
     /** @test */
     public function a_contact_can_be_deleted(){
       $contact = factory(Contact::class)->create();
 
-      $response = $this->delete('/api/contacts/'.$contact->id);
+      $response = $this->delete('/api/contacts/'.$contact->id, ['api_token' => $this->user->api_token]);
       $this->assertCount(0,Contact::all());
 
     }
@@ -121,7 +137,8 @@ class ContactsTest extends TestCase
         'name' => "T'Challa",
         'email' => 'psalmnat@gmail.com',
         'birthday' => '05/04/1998',
-        'company' => 'IT consortium'
+        'company' => 'IT consortium',
+        'api_token' => $this->user->api_token,
       ]; 
 
     }
