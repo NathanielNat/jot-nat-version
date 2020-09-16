@@ -115,16 +115,29 @@ class ContactsTest extends TestCase
 
     /** @test */
     public function a_contact_can_be_retrieved(){
-        $contact = factory(Contact::class)->create();
+        $contact = factory(Contact::class)->create(['user_id'=>$this->user->id]);
        
       $response = $this->get('/api/contacts/'.$contact->id. '?api_token='. $this->user->api_token);
       $response->assertJson([
+        'id' => $contact->id,
+        'user_id' => $this->user->id,
         'name' => $contact->name,
-        'birthday' => $contact->birthday->format('m/d/Y'),
+        'birthday' => $contact->birthday,
         'email' => $contact->email,
         'company' => $contact->company,
       ]);
     }
+
+    /** @test */
+    public function only_the_users_contact_can_be_retrieved(){
+      $contact = factory(Contact::class)->create(['user_id'=>$this->user->id]);
+      $anotherUser = \factory(User::class)->create();
+       
+      $response = $this->get('/api/contacts/'.$contact->id. '?api_token='. $anotherUser->api_token);
+
+      $response->assertStatus(403);
+    }
+
 
     /** @test */
 
