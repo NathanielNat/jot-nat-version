@@ -54,8 +54,8 @@ class ContactsTest extends TestCase
      */
     public function authenticated_user_can_add_contact(){
 
-      $this->withoutExceptionHandling();
-      
+      // $this->withoutExceptionHandling();
+          // dd($this->user->id);
       $user  = factory(User::class)->create();
     
 

@@ -35,8 +35,8 @@ class ContactController extends Controller
      */
     public function store(Request $request)
     {
-    
-        Contact::create($this->validate_data());
+        //  automatically assign current user to contact created
+        request()->user()->contacts()->create($this->validate_data());
     }
 
     /**
