@@ -173,6 +173,19 @@ class ContactsTest extends TestCase
 
     }
 
+        /** @test */
+    public function only_owner_of_contact_can_delete_contact(){
+      $contact = factory(Contact::class)->create(['user_id'=> $this->user->id]);
+
+      $anotherUser = \factory(User::class)->create(); 
+      $response = $this->delete('/api/contacts/'.$contact->id, ['api_token' => $anotherUser->api_token]);
+      
+      // making an assertion of getting an erorr status of 403 if the user is not  authorised 
+      $response->assertStatus(403);
+
+    }
+
+
     private function data(){
       return [
         'name' => "T'Challa",
