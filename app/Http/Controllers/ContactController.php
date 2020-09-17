@@ -14,6 +14,7 @@ class ContactController extends Controller
      */
     public function index()
     {
+        $this->authorize('viewAny',Contact::class);
         return \request()->user()->contacts;
     }
 
@@ -35,6 +36,9 @@ class ContactController extends Controller
      */
     public function store(Request $request)
     {
+        // \policy
+        $this->authorize('create',Contact::class);
+
         //  automatically assign current user to contact created
         request()->user()->contacts()->create($this->validate_data());
     }
@@ -47,9 +51,7 @@ class ContactController extends Controller
      */
     public function show(Contact $contact)
     {
-        if(\request()->user()->isNot($contact->user)){
-            return \response([],403); 
-        }
+        $this->authorize('view',$contact);
         return $contact;
     }
 
@@ -73,9 +75,8 @@ class ContactController extends Controller
      */
     public function update(Request $request, Contact $contact)
     {
-        if(\request()->user()->isNot($contact->user)){   
-            return \response([],403); 
-        } 
+        // policy
+        $this->authorize('update',$contact);
         Contact::update($this->validate_data());
 
     }
@@ -97,9 +98,7 @@ class ContactController extends Controller
      */
     public function destroy(Contact $contact)
     {
-        if(\request()->user()->isNot($contact->user)){
-            return \response([],403); 
-        }
+        $this->authorize('delete',$contact);
         $contact->delete();
     }
 }
