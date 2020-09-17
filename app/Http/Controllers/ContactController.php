@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Contact;
+use App\Http\Resources\Contact as ContactResource;
 
 class ContactController extends Controller
 {
@@ -15,7 +16,7 @@ class ContactController extends Controller
     public function index()
     {
         $this->authorize('viewAny',Contact::class);
-        return \request()->user()->contacts;
+        return ContactResource::collection(request()->user()->contacts);
     }
 
     /**
@@ -52,10 +53,12 @@ class ContactController extends Controller
     public function show(Contact $contact)
     {
         $this->authorize('view',$contact);
-        return $contact;
+
+
+        return new ContactResource($contact);
     }
 
-    /**
+    /** 
      * Show the form for editing the specified resource.
      *
      * @param  int  $id
