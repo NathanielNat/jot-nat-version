@@ -59,11 +59,10 @@ class ContactsTest extends TestCase
     public function authenticated_user_can_add_contact(){
 
       $this->withoutExceptionHandling();
-          // dd($this->user->id);
       $user  = factory(User::class)->create();
     
 
-      $this->post('/api/contacts',$this->data(), ['api_token' => $user->api_token]);
+       $response = $this->post('/api/contacts',$this->data());
        
           $contact = Contact::first();
         
@@ -71,6 +70,16 @@ class ContactsTest extends TestCase
         $this->assertEquals('psalmnat@gmail.com', $contact->email);
         $this->assertEquals('05/04/1998', $contact->birthday->format('m/d/Y'));
         $this->assertEquals('IT consortium', $contact->company);
+
+        $response->assertStatus(Response::HTTP_CREATED);
+        $response->assertJson([
+          'data' => [
+            'contact_id' => $contact->id,
+          ],
+          'links' => [
+              'self' => $contact->path(),
+          ]
+        ]);
     }
 
     /**clear && vendor/bin/phpunit --filter a_contact_can_be_deleted

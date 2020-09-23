@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Contact;
 use App\Http\Resources\Contact as ContactResource;
-
+use Symfony\Component\HttpFoundation\Response;
 class ContactController extends Controller
 {
     /**
@@ -41,7 +41,13 @@ class ContactController extends Controller
         $this->authorize('create',Contact::class);
 
         //  automatically assign current user to contact created
-        request()->user()->contacts()->create($this->validate_data());
+        $contact = request()->user()->contacts()->create($this->validate_data());
+         // return \response($contact,201);
+        //  return resource and status created code of 201
+        return (new ContactResource($contact))
+                ->response()
+                ->setStatusCode(Response::HTTP_CREATED);
+       
     }
 
     /**
@@ -81,6 +87,9 @@ class ContactController extends Controller
         // policy
         $this->authorize('update',$contact);
         Contact::update($this->validate_data());
+        return (new ContactResource($contact))
+                ->response()
+                ->setStatusCode(Response::HTTP_OK);
 
     }
 

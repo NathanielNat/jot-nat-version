@@ -16,14 +16,17 @@ class Contact extends JsonResource
     {
         // this layer sits between the frontend and the api so when there is a change in column name, it doesen't affect our api
         return [
+           'data' => [
             'contact_id' => $this->id,
             'name' => $this->name,
             'email' => $this->email,
             'company' => $this->company,
             'birthday' => $this->birthday->format('m/d/Y'),
             'last_updated' => $this->updated_at->diffForHumans(),
-
-
+           ],
+           'links' => [
+               'self' => $this->path(),
+           ]
         ];
     }
 }
