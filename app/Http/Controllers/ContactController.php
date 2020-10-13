@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Contact;
 use App\Http\Resources\Contact as ContactResource;
-use Symfony\Component\HttpFoundation\Response;
+// use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Http\Response;
+
 class ContactController extends Controller
 {
     /**
